@@ -1135,7 +1135,7 @@ static NSOperationQueue *sharedQueue = nil;
 		return;
 	}
 	
-	[self performSelectorOnMainThread:@selector(requestStarted) withObject:nil waitUntilDone:[NSThread isMainThread]];
+	[self performSelector:@selector(requestStarted) withObject:nil];
 	
 	[self setDownloadComplete:NO];
 	[self setComplete:NO];
@@ -1835,7 +1835,7 @@ static NSOperationQueue *sharedQueue = nil;
 #if NS_BLOCKS_AVAILABLE
 - (void)performBlockOnMainThread:(ASIBasicBlock)block
 {
-	[self performSelectorOnMainThread:@selector(callBlock:) withObject:[[block copy] autorelease] waitUntilDone:[NSThread isMainThread]];
+	[self performSelector:@selector(callBlock:) withObject:[[block copy] autorelease]];
 }
 
 - (void)callBlock:(ASIBasicBlock)block
@@ -1885,7 +1885,7 @@ static NSOperationQueue *sharedQueue = nil;
 		if (callerToRetain) {
 			CFRetain(callerToRetain);
 		}
-        [cbInvocation performSelectorOnMainThread:@selector(invoke) withObject:nil waitUntilDone:[NSThread isMainThread]];
+        [cbInvocation performSelector:@selector(invoke) withObject:nil];
     }
 }
 
@@ -2013,7 +2013,7 @@ static NSOperationQueue *sharedQueue = nil;
 	if ([self isPACFileRequest]) {
 		[self reportFinished];
 	} else {
-		[self performSelectorOnMainThread:@selector(reportFinished) withObject:nil waitUntilDone:[NSThread isMainThread]];
+		[self performSelector:@selector(reportFinished) withObject:nil];
 	}
 }
 
@@ -2117,7 +2117,7 @@ static NSOperationQueue *sharedQueue = nil;
 	if ([self isPACFileRequest]) {
 		[failedRequest reportFailure];
 	} else {
-		[failedRequest performSelectorOnMainThread:@selector(reportFailure) withObject:nil waitUntilDone:[NSThread isMainThread]];
+		[failedRequest performSelector:@selector(reportFailure) withObject:nil];
 	}
 	
     if (!inProgress)
@@ -2298,7 +2298,7 @@ static NSOperationQueue *sharedQueue = nil;
 	}
 
 	CFRelease(message);
-	[self performSelectorOnMainThread:@selector(requestReceivedResponseHeaders:) withObject:[[[self responseHeaders] copy] autorelease] waitUntilDone:[NSThread isMainThread]];
+	[self performSelector:@selector(requestReceivedResponseHeaders:) withObject:[[[self responseHeaders] copy] autorelease]];
 }
 
 - (BOOL)willRedirect
@@ -2314,7 +2314,7 @@ static NSOperationQueue *sharedQueue = nil;
 		return NO;
 	}
 
-	[self performSelectorOnMainThread:@selector(requestRedirected) withObject:nil waitUntilDone:[NSThread isMainThread]];
+	[self performSelector:@selector(requestRedirected) withObject:nil];
 
 	// By default, we redirect 301 and 302 response codes as GET requests
 	// According to RFC 2616 this is wrong, but this is what most browsers do, so it's probably what you're expecting to happen
@@ -2645,7 +2645,7 @@ static NSOperationQueue *sharedQueue = nil;
 	// Mac authentication dialog coming soon!
 	#if TARGET_OS_IPHONE
 	if ([self shouldPresentProxyAuthenticationDialog]) {
-		[ASIAuthenticationDialog performSelectorOnMainThread:@selector(presentAuthenticationDialogForRequest:) withObject:self waitUntilDone:[NSThread isMainThread]];
+		[ASIAuthenticationDialog performSelector:@selector(presentAuthenticationDialogForRequest:) withObject:self];
 		return YES;
 	}
 	return NO;
@@ -2681,7 +2681,7 @@ static NSOperationQueue *sharedQueue = nil;
 	#endif
 
 	if (delegateOrBlockWillHandleAuthentication) {
-		[self performSelectorOnMainThread:@selector(askDelegateForProxyCredentials) withObject:nil waitUntilDone:NO];
+		[self performSelector:@selector(askDelegateForProxyCredentials)];
 	}
 	
 	return delegateOrBlockWillHandleAuthentication;
@@ -2732,7 +2732,7 @@ static NSOperationQueue *sharedQueue = nil;
 	#endif
 
 	if (delegateOrBlockWillHandleAuthentication) {
-		[self performSelectorOnMainThread:@selector(askDelegateForCredentials) withObject:nil waitUntilDone:NO];
+		[self performSelector:@selector(askDelegateForCredentials)];
 	}
 	return delegateOrBlockWillHandleAuthentication;
 }
@@ -2920,7 +2920,7 @@ static NSOperationQueue *sharedQueue = nil;
 	// Mac authentication dialog coming soon!
 	#if TARGET_OS_IPHONE
 	if ([self shouldPresentAuthenticationDialog]) {
-		[ASIAuthenticationDialog performSelectorOnMainThread:@selector(presentAuthenticationDialogForRequest:) withObject:self waitUntilDone:[NSThread isMainThread]];
+		[ASIAuthenticationDialog performSelector:@selector(presentAuthenticationDialogForRequest:) withObject:self];
 		return YES;
 	}
 	return NO;
@@ -3234,7 +3234,7 @@ static NSOperationQueue *sharedQueue = nil;
 	if (needToAskDelegateAboutRedirect) {
 		NSURL *newURL = [[[self redirectURL] copy] autorelease];
 		[self setRedirectURL:nil];
-		[self performSelectorOnMainThread:@selector(requestWillRedirectToURL:) withObject:newURL waitUntilDone:[NSThread isMainThread]];
+		[self performSelector:@selector(requestWillRedirectToURL:) withObject:newURL];
 		return true;
 	}
 	return false;
@@ -3340,7 +3340,7 @@ static NSOperationQueue *sharedQueue = nil;
 			} else {
 				data = [NSData dataWithBytes:buffer length:bytesRead];
 			}
-			[self performSelectorOnMainThread:@selector(passOnReceivedData:) withObject:data waitUntilDone:[NSThread isMainThread]];
+			[self performSelector:@selector(passOnReceivedData:) withObject:data];
 			
 		// Are we downloading to a file?
 		} else if ([self downloadDestinationPath]) {
@@ -3557,7 +3557,7 @@ static NSOperationQueue *sharedQueue = nil;
 
 	#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	if ([ASIHTTPRequest isMultitaskingSupported] && [self shouldContinueWhenAppEntersBackground]) {
-		dispatch_async(dispatch_get_main_queue(), ^{
+		dispatch_sync(dispatch_get_main_queue(), ^{
 			if (backgroundTask != UIBackgroundTaskInvalid) {
 				[[UIApplication sharedApplication] endBackgroundTask:backgroundTask];
 				backgroundTask = UIBackgroundTaskInvalid;
@@ -3730,7 +3730,7 @@ static NSOperationQueue *sharedQueue = nil;
 			// This can prevent flicker when you have a single request finish and then immediately start another request
 			// We run this on the main thread because we have no guarantee this thread will have a runloop in 0.5 seconds time
 			// We don't bother the cancel this call if we start a new request, because we'll check if requests are running before we hide it
-			[[self class] performSelectorOnMainThread:@selector(hideNetworkActivityIndicatorAfterDelay) withObject:nil waitUntilDone:[NSThread isMainThread]];
+			[[self class] performSelector:@selector(hideNetworkActivityIndicatorAfterDelay) withObject:nil];
 		}
 		[connectionsLock unlock];
 
