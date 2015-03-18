@@ -1392,7 +1392,8 @@ static NSOperationQueue *sharedQueue = nil;
 	// We've kept it open until now (when we've just opened a new stream) so that the new stream can make use of the old connection
 	// http://lists.apple.com/archives/Macnetworkprog/2006/Mar/msg00119.html
 	if (oldStream) {
-		[oldStream close];
+        [oldStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:[self runLoopMode]];
+//		[oldStream close];
 		[oldStream release];
 		oldStream = nil;
 	}
